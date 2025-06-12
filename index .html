@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Custom SMS Sender - Cyber Team Help</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      background: radial-gradient(circle at center, #0f0f0f, #1e1e1e);
+      font-family: 'Orbitron', sans-serif;
+      color: #0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 20px;
+    }
+    .password-box, .main-box {
+      background-color: #111;
+      border: 2px solid #0f0;
+      border-radius: 15px;
+      padding: 25px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 0 15px #0f0;
+      display: none;
+    }
+    .password-box {
+      display: block;
+    }
+    h2 {
+      text-align: center;
+      color: #0ff;
+      text-shadow: 0 0 15px #0ff;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      background: #222;
+      border: 1px solid #0f0;
+      color: #0f0;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      background: #0f0;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0c0;
+    }
+    .output {
+      background: #000;
+      color: #0f0;
+      padding: 10px;
+      margin-top: 15px;
+      border: 1px solid #0f0;
+      border-radius: 10px;
+      height: 150px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .credit {
+      text-align: center;
+      margin-top: 15px;
+      color: #ff0;
+      text-shadow: 0 0 10px #ff0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Password Box -->
+  <div class="password-box" id="passwordBox">
+    <h2>🔐 Enter Password</h2>
+    <label>Password:</label>
+    <input type="password" id="passwordInput" placeholder="Enter password">
+    <button onclick="validatePassword()">Unlock</button>
+    <div id="passMsg" style="color:red;margin-top:10px;"></div>
+  </div>
+
+  <!-- Main App -->
+  <div class="main-box" id="mainBox">
+    <h2>📲 Custom SMS Sender</h2>
+
+    <label>📞 Receiver Number (Without +88):</label>
+    <input type="text" id="numberInput" placeholder="e.g. 017xxxxxxxx" maxlength="11">
+
+    <label>💬 Custom Message:</label>
+    <textarea id="messageInput" rows="3" placeholder="Type your message here..."></textarea>
+
+    <button onclick="sendSMS()">🚀 Send Message</button>
+
+    <div class="output" id="outputBox">Response will show here...</div>
+
+    <div class="credit">⚡ Powered by <span style="color:#f0f;text-shadow:0 0 10px #f0f;">SHADOW JOKER</span></div>
+  </div>
+
+  <script>
+    const PASSWORD = "SHADOW JOKER";
+    const API_ENDPOINT = "https://shadow-smssync-api.onrender.com/";
+
+    function validatePassword() {
+      const input = document.getElementById("passwordInput").value;
+      if (input === PASSWORD) {
+        document.getElementById("passwordBox").style.display = "none";
+        document.getElementById("mainBox").style.display = "block";
+      } else {
+        document.getElementById("passMsg").innerText = "❌ Wrong password!";
+      }
+    }
+
+    async function sendSMS() {
+      const number = document.getElementById("numberInput").value.trim();
+      const message = document.getElementById("messageInput").value.trim();
+      const output = document.getElementById("outputBox");
+
+      if (number.length !== 11 || !/^01[3-9][0-9]{8}$/.test(number)) {
+        output.innerText = "❌ Invalid Bangladeshi number format!";
+        return;
+      }
+
+      if (!message) {
+        output.innerText = "❌ Message cannot be empty!";
+        return;
+      }
+
+      const payload = {
+        number: number,
+        message: message
+      };
+
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          output.innerText = `❌ Error ${response.status}: ${response.statusText}`;
+          return;
+        }
+
+        const data = await response.json();
+        output.innerText = JSON.stringify(data, null, 2);
+      } catch (error) {
+        output.innerText = "❌ Failed to send: " + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
